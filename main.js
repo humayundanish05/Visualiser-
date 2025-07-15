@@ -1,26 +1,13 @@
 window.onload = function () {
   const audio = document.getElementById("audio");
-  if (!audio) {
-    console.error("❌ Audio element not found!");
-    return;
-  }
-
   const canvas = document.createElement("canvas");
   canvas.id = "visualizerCanvas";
   document.body.appendChild(canvas);
 
   const ctx = canvas.getContext("2d");
-  let audioContext;
-  let analyser;
-  let sourceNode;
-  let dataArray;
-  let bufferLength;
 
-  let rotation = 0;
-  let pulse = 1;
-  let darkMode = true;
-  let hue = 0;
-
+  let audioContext, analyser, sourceNode, dataArray, bufferLength;
+  let rotation = 0, pulse = 1, hue = 0, darkMode = true;
   let waveformArray;
 
   document.addEventListener("keydown", (e) => {
@@ -52,16 +39,13 @@ window.onload = function () {
 
     const lowFreqRange = dataArray.slice(0, bufferLength / 4);
     const energy = lowFreqRange.reduce((sum, val) => sum + val, 0) / lowFreqRange.length;
-    const threshold = 20;
+    if (audio.paused || audio.volume === 0 || energy < 20) return;
 
-    if (audio.paused || audio.volume === 0 || energy < threshold) return;
-
-    // 🌈 Rainbow background (beat pulse sync)
     hue = (hue + energy * 0.05) % 360;
-    const bgLightness = 10 + Math.min(energy * 0.8, 40); // Pulse brightness
+    const lightness = 10 + Math.min(energy * 0.8, 40);
     const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    gradient.addColorStop(0, `hsl(${hue}, 100%, ${darkMode ? bgLightness : 100 - bgLightness}%)`);
-    gradient.addColorStop(1, `hsl(${(hue + 60) % 360}, 100%, ${darkMode ? bgLightness + 5 : 100 - bgLightness - 5}%)`);
+    gradient.addColorStop(0, `hsl(${hue}, 100%, ${darkMode ? lightness : 100 - lightness}%)`);
+    gradient.addColorStop(1, `hsl(${(hue + 60) % 360}, 100%, ${darkMode ? lightness + 5 : 100 - lightness - 5}%)`);
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.save();
@@ -98,33 +82,21 @@ window.onload = function () {
 
     ctx.restore();
 
-    // ❤️ ECG-style waveform at bottom
+    // ECG-style waveform
     ctx.beginPath();
     ctx.lineWidth = 3;
     ctx.strokeStyle = darkMode ? "#0f0" : "#090";
     ctx.shadowColor = ctx.strokeStyle;
     ctx.shadowBlur = 10;
 
-    let xStep = canvas.width / waveformArray.length;
+    const xStep = canvas.width / waveformArray.length;
     for (let i = 0; i < waveformArray.length; i++) {
-      let value = waveformArray[i];
-      let y;
-
-      if (value > 140) {
-        // Sharp peak (heartbeat)
-        y = canvas.height - 150;
-      } else {
-        // Flat line
-        y = canvas.height - 80;
-      }
-
+      let val = waveformArray[i];
+      let y = val > 140 ? canvas.height - 150 : canvas.height - 80;
       const x = i * xStep;
 
-      if (i === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
     }
     ctx.stroke();
   }
@@ -137,7 +109,6 @@ window.onload = function () {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   }
-
   window.addEventListener("resize", resizeCanvas);
   resizeCanvas();
 };
