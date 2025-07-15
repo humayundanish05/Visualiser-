@@ -1,133 +1,140 @@
-// 🎵 Beat Visualizer (v6 - All Effects: Bass + Pulse + Glow + Rotation + Theme + Waveform + BG)
-const audio = document.getElementById("audio");
-const canvas = document.createElement("canvas");
-canvas.id = "visualizerCanvas";
-document.body.appendChild(canvas);
+// 🎵 Beat Visualizer (v6 - Fixed & Polished)
 
-const ctx = canvas.getContext("2d");
-let audioContext;
-let analyser;
-let sourceNode;
-let dataArray;
-let bufferLength;
-
-let rotation = 0;
-let pulse = 1;
-let waveformArray;
-
-let darkMode = true;
-
-// 🌓 Theme toggle
-document.addEventListener("keydown", (e) => {
-  if (e.key === "t") {
-    darkMode = !darkMode;
-    document.body.style.background = darkMode ? "#000" : "#fff";
+window.onload = function () {
+  const audio = document.getElementById("audio");
+  if (!audio) {
+    console.error("❌ Audio element not found!");
+    return;
   }
-});
 
-function setupAudioVisualizer() {
-  audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  analyser = audioContext.createAnalyser();
-  sourceNode = audioContext.createMediaElementSource(audio);
-  sourceNode.connect(analyser);
-  analyser.connect(audioContext.destination);
-  analyser.fftSize = 256;
+  const canvas = document.createElement("canvas");
+  canvas.id = "visualizerCanvas";
+  document.body.appendChild(canvas);
 
-  bufferLength = analyser.frequencyBinCount;
-  dataArray = new Uint8Array(bufferLength);
-  waveformArray = new Uint8Array(analyser.fftSize);
+  const ctx = canvas.getContext("2d");
+  let audioContext;
+  let analyser;
+  let sourceNode;
+  let dataArray;
+  let bufferLength;
+  let waveformArray;
 
-  drawVisualizer();
-}
+  let rotation = 0;
+  let pulse = 1;
+  let darkMode = true;
 
-function drawVisualizer() {
-  requestAnimationFrame(drawVisualizer);
+  // 🌓 Theme toggle (press "t")
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "t") {
+      darkMode = !darkMode;
+      document.body.style.background = darkMode ? "#000" : "#fff";
+    }
+  });
 
-  analyser.getByteFrequencyData(dataArray);
-  analyser.getByteTimeDomainData(waveformArray); // waveform data
+  function setupAudioVisualizer() {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioContext.createAnalyser();
+    sourceNode = audioContext.createMediaElementSource(audio);
+    sourceNode.connect(analyser);
+    analyser.connect(audioContext.destination);
+    analyser.fftSize = 256;
 
-  // Bass detection
-  const lowFreqRange = dataArray.slice(0, bufferLength / 4);
-  const energy = lowFreqRange.reduce((sum, val) => sum + val, 0) / lowFreqRange.length;
-  const threshold = 20;
+    bufferLength = analyser.frequencyBinCount;
+    dataArray = new Uint8Array(bufferLength);
+    waveformArray = new Uint8Array(analyser.fftSize);
 
-  if (energy < threshold || audio.paused || audio.volume === 0) return;
+    drawVisualizer();
+  }
 
-  // 🌀 Background blur effect
-  ctx.fillStyle = darkMode ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.25)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.save();
+  function drawVisualizer() {
+    requestAnimationFrame(drawVisualizer);
 
-  const centerX = canvas.width / 2;
-  const centerY = canvas.height / 2;
-  const radius = Math.min(centerX, centerY) / 2;
-  const bars = 64;
+    analyser.getByteFrequencyData(dataArray);
+    analyser.getByteTimeDomainData(waveformArray);
 
-  // 🔊 Pulse effect
-  pulse = 1 + energy / 100;
+    // 🔊 Bass detection
+    const lowFreqRange = dataArray.slice(0, bufferLength / 4);
+    const energy = lowFreqRange.reduce((sum, val) => sum + val, 0) / lowFreqRange.length;
+    const threshold = 20;
 
-  // 🔁 Rotation effect
-  rotation += 0.01;
-  ctx.translate(centerX, centerY);
-  ctx.rotate(rotation);
-  ctx.translate(-centerX, -centerY);
+    if (energy < threshold || audio.paused || audio.volume === 0) return;
 
-  for (let i = 0; i < bars; i++) {
-    const angle = (i / bars) * Math.PI * 2;
-    const barLength = dataArray[i] / 1.5 * pulse;
+    // 🌀 Background blur effect
+    ctx.fillStyle = darkMode ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.25)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
 
-    const x1 = centerX + Math.cos(angle) * radius;
-    const y1 = centerY + Math.sin(angle) * radius;
-    const x2 = centerX + Math.cos(angle) * (radius + barLength);
-    const y2 = centerY + Math.sin(angle) * (radius + barLength);
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = Math.min(centerX, centerY) / 2;
+    const bars = 64;
 
-    ctx.strokeStyle = `hsl(${i * 6}, 100%, 50%)`;
-    ctx.shadowColor = ctx.strokeStyle;
-    ctx.shadowBlur = 20;
-    ctx.lineWidth = 2;
+    // 📈 Pulse + Rotation
+    pulse = 1 + energy / 100;
+    rotation += 0.01;
+    ctx.translate(centerX, centerY);
+    ctx.rotate(rotation);
+    ctx.translate(-centerX, -centerY);
+
+    for (let i = 0; i < bars; i++) {
+      const angle = (i / bars) * Math.PI * 2;
+      const barLength = dataArray[i] / 1.5 * pulse;
+
+      const x1 = centerX + Math.cos(angle) * radius;
+      const y1 = centerY + Math.sin(angle) * radius;
+      const x2 = centerX + Math.cos(angle) * (radius + barLength);
+      const y2 = centerY + Math.sin(angle) * (radius + barLength);
+
+      ctx.strokeStyle = `hsl(${i * 6}, 100%, 50%)`;
+      ctx.shadowColor = ctx.strokeStyle;
+      ctx.shadowBlur = 20;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+
+    // 💠 Waveform (smooth curved)
     ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = darkMode ? "#0ff" : "#00f";
+    ctx.shadowColor = ctx.strokeStyle;
+    ctx.shadowBlur = 15;
+
+    let prevX = 0, prevY = 0;
+
+    for (let i = 0; i < waveformArray.length; i++) {
+      const x = (i / waveformArray.length) * canvas.width;
+      const y = (waveformArray[i] / 255.0) * 100 + (canvas.height - 120);
+
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        const cx = (prevX + x) / 2;
+        const cy = (prevY + y) / 2;
+        ctx.quadraticCurveTo(prevX, prevY, cx, cy);
+      }
+
+      prevX = x;
+      prevY = y;
+    }
     ctx.stroke();
   }
 
-  ctx.restore();
+  // ▶ Start visualizer on audio play
+  audio.addEventListener("play", () => {
+    if (!audioContext) setupAudioVisualizer();
+  });
 
-  // 📈 Waveform at bottom
-  ctx.beginPath();
-ctx.lineWidth = 2;
-ctx.strokeStyle = darkMode ? "#0ff" : "#00f";
-ctx.shadowColor = ctx.strokeStyle;
-ctx.shadowBlur = 15;
-
-let prevX = 0, prevY = 0;
-
-for (let i = 0; i < waveformArray.length; i++) {
-  const x = (i / waveformArray.length) * canvas.width;
-  const y = (waveformArray[i] / 255.0) * 100 + (canvas.height - 120);
-
-  if (i === 0) {
-    ctx.moveTo(x, y);
-  } else {
-    const cx = (prevX + x) / 2;
-    const cy = (prevY + y) / 2;
-    ctx.quadraticCurveTo(prevX, prevY, cx, cy);
+  // 📱 Resize canvas on window change
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
   }
 
-  prevX = x;
-  prevY = y;
-}
-ctx.stroke();
-
-// ▶ Start visualizer on play
-audio.addEventListener("play", () => {
-  if (!audioContext) setupAudioVisualizer();
-});
-
-// 📱 Full screen responsive canvas
-window.addEventListener("resize", () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-});
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+};
