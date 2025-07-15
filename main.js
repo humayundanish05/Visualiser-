@@ -1,5 +1,3 @@
-// 🎵 Beat Visualizer (v6 - Fixed & Polished)
-
 window.onload = function () {
   const audio = document.getElementById("audio");
   if (!audio) {
@@ -17,17 +15,17 @@ window.onload = function () {
   let sourceNode;
   let dataArray;
   let bufferLength;
-  let waveformArray;
 
   let rotation = 0;
   let pulse = 1;
   let darkMode = true;
+  let hue = 0;
 
-  // 🌓 Theme toggle (press "t")
+  let waveformArray;
+
   document.addEventListener("keydown", (e) => {
     if (e.key === "t") {
       darkMode = !darkMode;
-      document.body.style.background = darkMode ? "#000" : "#fff";
     }
   });
 
@@ -52,15 +50,19 @@ window.onload = function () {
     analyser.getByteFrequencyData(dataArray);
     analyser.getByteTimeDomainData(waveformArray);
 
-    // 🔊 Bass detection
     const lowFreqRange = dataArray.slice(0, bufferLength / 4);
     const energy = lowFreqRange.reduce((sum, val) => sum + val, 0) / lowFreqRange.length;
     const threshold = 20;
 
-    if (energy < threshold || audio.paused || audio.volume === 0) return;
+    if (audio.paused || audio.volume === 0 || energy < threshold) return;
 
-    // 🌀 Background blur effect
-    ctx.fillStyle = darkMode ? "rgba(0, 0, 0, 0.25)" : "rgba(255, 255, 255, 0.25)";
+    // 🌈 Rainbow background (beat pulse sync)
+    hue = (hue + energy * 0.05) % 360;
+    const bgLightness = 10 + Math.min(energy * 0.8, 40); // Pulse brightness
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, `hsl(${hue}, 100%, ${darkMode ? bgLightness : 100 - bgLightness}%)`);
+    gradient.addColorStop(1, `hsl(${(hue + 60) % 360}, 100%, ${darkMode ? bgLightness + 5 : 100 - bgLightness - 5}%)`);
+    ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.save();
 
@@ -69,7 +71,6 @@ window.onload = function () {
     const radius = Math.min(centerX, centerY) / 2;
     const bars = 64;
 
-    // 📈 Pulse + Rotation
     pulse = 1 + energy / 100;
     rotation += 0.01;
     ctx.translate(centerX, centerY);
@@ -97,39 +98,41 @@ window.onload = function () {
 
     ctx.restore();
 
-    // 💠 Waveform (smooth curved)
+    // ❤️ ECG-style waveform at bottom
     ctx.beginPath();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = darkMode ? "#0ff" : "#00f";
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = darkMode ? "#0f0" : "#090";
     ctx.shadowColor = ctx.strokeStyle;
-    ctx.shadowBlur = 15;
+    ctx.shadowBlur = 10;
 
-    let prevX = 0, prevY = 0;
-
+    let xStep = canvas.width / waveformArray.length;
     for (let i = 0; i < waveformArray.length; i++) {
-      const x = (i / waveformArray.length) * canvas.width;
-      const y = (waveformArray[i] / 255.0) * 100 + (canvas.height - 120);
+      let value = waveformArray[i];
+      let y;
+
+      if (value > 140) {
+        // Sharp peak (heartbeat)
+        y = canvas.height - 150;
+      } else {
+        // Flat line
+        y = canvas.height - 80;
+      }
+
+      const x = i * xStep;
 
       if (i === 0) {
         ctx.moveTo(x, y);
       } else {
-        const cx = (prevX + x) / 2;
-        const cy = (prevY + y) / 2;
-        ctx.quadraticCurveTo(prevX, prevY, cx, cy);
+        ctx.lineTo(x, y);
       }
-
-      prevX = x;
-      prevY = y;
     }
     ctx.stroke();
   }
 
-  // ▶ Start visualizer on audio play
   audio.addEventListener("play", () => {
     if (!audioContext) setupAudioVisualizer();
   });
 
-  // 📱 Resize canvas on window change
   function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
