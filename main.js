@@ -120,3 +120,9 @@ function resizeCanvas() {
 }
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
+
+// 🎚 Volume control
+const volumeSlider = document.getElementById("volumeSlider");
+volumeSlider.addEventListener("input", () => {
+  audio.volume = parseFloat(volumeSlider.value);
+});
