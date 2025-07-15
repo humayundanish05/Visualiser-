@@ -93,21 +93,38 @@ function drawVisualizer() {
 
   ctx.restore();
 
-  // 📈 Waveform at bottom
-  ctx.beginPath();
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = darkMode ? "#0ff" : "#00f";
-  for (let i = 0; i < waveformArray.length; i++) {
-    const x = (i / waveformArray.length) * canvas.width;
-    const y = (waveformArray[i] / 255.0) * 100 + (canvas.height - 120);
-    if (i === 0) {
-      ctx.moveTo(x, y);
-    } else {
-      ctx.lineTo(x, y);
-    }
+  // 📈 Glowing heartbeat-style waveform
+ctx.beginPath();
+ctx.lineWidth = 2.5;
+ctx.strokeStyle = darkMode ? "#0f0" : "#070"; // green glow
+ctx.shadowColor = ctx.strokeStyle;
+ctx.shadowBlur = 20;
+
+let prevX = 0, prevY = 0;
+
+for (let i = 0; i < waveformArray.length; i++) {
+  const x = (i / waveformArray.length) * canvas.width;
+  
+  // Pulse line with sharp peaks like ECG
+  let y;
+  if (waveformArray[i] > 140) {
+    y = canvas.height - 180; // peak (spike)
+  } else {
+    y = canvas.height - 100; // flat line
   }
-  ctx.stroke();
+
+  if (i === 0) {
+    ctx.moveTo(x, y);
+  } else {
+    const cx = (prevX + x) / 2;
+    const cy = (prevY + y) / 2;
+    ctx.quadraticCurveTo(prevX, prevY, cx, cy);
+  }
+
+  prevX = x;
+  prevY = y;
 }
+ctx.stroke();
 
 // ▶ Start visualizer on play
 audio.addEventListener("play", () => {
