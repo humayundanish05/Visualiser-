@@ -43,10 +43,10 @@ function drawVisualizer() {
   const energy = lowFreqRange.reduce((sum, val) => sum + val, 0) / lowFreqRange.length;
   const beat = energy > 15 && audio.volume > 0 && !audio.paused;
 
-  // 🔁 Background pulse
+  // 🔁 Background pulse (⬇ Reduced intensity)
   ctx.fillStyle = beat
-    ? (darkMode ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.3)")
-    : (darkMode ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)");
+    ? (darkMode ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.15)")
+    : (darkMode ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.04)");
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.save();
 
