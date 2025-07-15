@@ -93,7 +93,7 @@ function drawVisualizer() {
 
   ctx.restore();
 
-  // 📈 Glowing heartbeat-style waveform with triangle spikes
+// 📈 Glowing heartbeat-style waveform with triangle spikes (beat-based)
 ctx.beginPath();
 ctx.lineWidth = 2.5;
 ctx.strokeStyle = darkMode ? "#0f0" : "#070"; // green glow
@@ -103,13 +103,10 @@ ctx.shadowBlur = 20;
 for (let i = 0; i < waveformArray.length; i++) {
   const x = (i / waveformArray.length) * canvas.width;
 
-  // Triangle spikes like ECG monitor
+  // Only show spike when beat is detected
   let y;
-  if (waveformArray[i] > 140) {
-    // Make a triangle spike
-    y = (i % 4 === 0) 
-      ? canvas.height - 180  // tip of spike
-      : canvas.height - 100; // flat parts
+  if (beat && i % 10 === 0) {
+    y = canvas.height - 180; // triangle spike
   } else {
     y = canvas.height - 100; // flat line
   }
@@ -117,7 +114,7 @@ for (let i = 0; i < waveformArray.length; i++) {
   if (i === 0) {
     ctx.moveTo(x, y);
   } else {
-    ctx.lineTo(x, y); // use straight lines instead of curves
+    ctx.lineTo(x, y);
   }
 }
 ctx.stroke();
