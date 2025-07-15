@@ -1,36 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Beat Visualizer</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+    }
+
+    canvas {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+
+    #volumeSlider {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🎧 Beat Visualizer</h1>
-    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1" style="
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 200px;
-  z-index: 10;
-  appearance: none;
-  height: 6px;
-  background: linear-gradient(to right, #0f0, #0ff);
-  border-radius: 10px;
-  outline: none;
-  opacity: 0.8;
-  transition: opacity 0.3s ease;
-">
-    <audio id="audio" controls>
-    
-      <source src="music5.mp3" type="audio/mpeg" />
-      Your browser does not support the audio element.
-    </audio>
-  </div>
 
+  <!-- Audio and Controls -->
+  <audio id="audio" src="music5.mp3" controls autoplay></audio>
+  <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+  <canvas id="visualizerCanvas"></canvas>
+
+  <!-- Link to your JavaScript file -->
   <script src="main.js"></script>
 </body>
 </html>
