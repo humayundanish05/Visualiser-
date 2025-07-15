@@ -1,42 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Beat Visualizer</title>
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background: black;
-    }
-
-    canvas {
-      display: block;
-      position: fixed;
-      top: 0;
-      left: 0;
-    }
-
-    #volumeSlider {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      z-index: 10;
-    }
+    body { margin:0; overflow:hidden; background:black; }
+    canvas { position:fixed; top:0; left:0; display:block; }
+    #volumeSlider { position:fixed; top:10px; left:10px; z-index:10; }
   </style>
 </head>
 <body>
-
-
-
-  
-  <!-- Audio and Controls -->
   <audio id="audio" src="music5.mp3" controls autoplay></audio>
-
-  
-  
-
-  <!-- Link to your JavaScript file -->
+  <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+  <canvas id="visualizerCanvas"></canvas>
   <script src="main.js"></script>
 </body>
 </html>
