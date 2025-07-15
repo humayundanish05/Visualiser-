@@ -1,20 +1,23 @@
-// 🎵 Beat Visualizer (Final Version - Heartbeat, Bars, Background Pulse)
 const audio = document.getElementById("audio");
-const canvas = document.createElement("canvas");
-canvas.id = "visualizerCanvas";
-document.body.appendChild(canvas);
-
+const canvas = document.getElementById("visualizerCanvas");
 const ctx = canvas.getContext("2d");
+const volumeSlider = document.getElementById("volumeSlider");
+
 let audioContext, analyser, sourceNode, dataArray, waveformArray, bufferLength;
 let rotation = 0;
 let darkMode = true;
 
-// 🌙 Theme toggle
+// Theme toggle
 document.addEventListener("keydown", (e) => {
   if (e.key === "t") {
     darkMode = !darkMode;
     document.body.style.background = darkMode ? "#000" : "#fff";
   }
+});
+
+// Volume control
+volumeSlider.addEventListener("input", () => {
+  audio.volume = volumeSlider.value;
 });
 
 function setupAudioVisualizer() {
@@ -38,15 +41,15 @@ function drawVisualizer() {
   analyser.getByteFrequencyData(dataArray);
   analyser.getByteTimeDomainData(waveformArray);
 
-  // 🎯 Beat detection from low frequencies
+  // Beat detection
   const lowFreqRange = dataArray.slice(0, bufferLength / 4);
   const energy = lowFreqRange.reduce((sum, val) => sum + val, 0) / lowFreqRange.length;
   const beat = energy > 15 && audio.volume > 0 && !audio.paused;
 
-  // 🔁 Background pulse (⬇ Reduced intensity)
+  // Background pulse
   ctx.fillStyle = beat
-    ? (darkMode ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.15)")
-    : (darkMode ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.04)");
+    ? (darkMode ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.3)")
+    : (darkMode ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)");
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.save();
 
@@ -55,7 +58,7 @@ function drawVisualizer() {
   const radius = Math.min(centerX, centerY) / 2;
   const bars = 64;
 
-  // 🔁 Rotate and pulse bars
+  // Rotation and pulse
   rotation += 0.01;
   const pulse = 1 + energy / 100;
 
@@ -84,7 +87,7 @@ function drawVisualizer() {
 
   ctx.restore();
 
-  // 📈 Heartbeat-style glowing waveform
+  // Heartbeat-style waveform (triangle spikes)
   ctx.beginPath();
   ctx.lineWidth = 2.5;
   ctx.strokeStyle = darkMode ? "#0f0" : "#070";
@@ -94,10 +97,9 @@ function drawVisualizer() {
   for (let i = 0; i < waveformArray.length; i++) {
     const x = (i / waveformArray.length) * canvas.width;
 
-    // Triangle spike only on beat
     const y = (beat && i % 10 === 0)
-      ? canvas.height - 180
-      : canvas.height - 100;
+      ? canvas.height - 180 // spike
+      : canvas.height - 100; // flat
 
     if (i === 0) {
       ctx.moveTo(x, y);
@@ -105,24 +107,19 @@ function drawVisualizer() {
       ctx.lineTo(x, y);
     }
   }
+
   ctx.stroke();
 }
 
-// ▶ Start on play
+// Start visualizer on audio play
 audio.addEventListener("play", () => {
   if (!audioContext) setupAudioVisualizer();
 });
 
-// 📱 Responsive canvas
+// Resize canvas
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 }
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
-
-// 🎚 Volume control
-const volumeSlider = document.getElementById("volumeSlider");
-volumeSlider.addEventListener("input", () => {
-  audio.volume = parseFloat(volumeSlider.value);
-});
