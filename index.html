@@ -9,8 +9,7 @@
 <body>
   <div class="container">
     <h1>🎧 Beat Visualizer</h1>
-    <audio id="audio" controls>
-      <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1" style="
+    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1" style="
   position: fixed;
   bottom: 20px;
   left: 50%;
@@ -25,6 +24,8 @@
   opacity: 0.8;
   transition: opacity 0.3s ease;
 ">
+    <audio id="audio" controls>
+    
       <source src="music5.mp3" type="audio/mpeg" />
       Your browser does not support the audio element.
     </audio>
