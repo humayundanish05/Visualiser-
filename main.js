@@ -125,7 +125,7 @@ for (let i = 0; i < waveformArray.length; i++) {
   prevY = y;
 }
 ctx.stroke();
-
+}
 // ▶ Start visualizer on play
 audio.addEventListener("play", () => {
   if (!audioContext) setupAudioVisualizer();
