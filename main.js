@@ -95,19 +95,29 @@ function drawVisualizer() {
 
   // 📈 Waveform at bottom
   ctx.beginPath();
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = darkMode ? "#0ff" : "#00f";
-  for (let i = 0; i < waveformArray.length; i++) {
-    const x = (i / waveformArray.length) * canvas.width;
-    const y = (waveformArray[i] / 255.0) * 100 + (canvas.height - 120);
-    if (i === 0) {
-      ctx.moveTo(x, y);
-    } else {
-      ctx.lineTo(x, y);
-    }
+ctx.lineWidth = 2;
+ctx.strokeStyle = darkMode ? "#0ff" : "#00f";
+ctx.shadowColor = ctx.strokeStyle;
+ctx.shadowBlur = 15;
+
+let prevX = 0, prevY = 0;
+
+for (let i = 0; i < waveformArray.length; i++) {
+  const x = (i / waveformArray.length) * canvas.width;
+  const y = (waveformArray[i] / 255.0) * 100 + (canvas.height - 120);
+
+  if (i === 0) {
+    ctx.moveTo(x, y);
+  } else {
+    const cx = (prevX + x) / 2;
+    const cy = (prevY + y) / 2;
+    ctx.quadraticCurveTo(prevX, prevY, cx, cy);
   }
-  ctx.stroke();
+
+  prevX = x;
+  prevY = y;
 }
+ctx.stroke();
 
 // ▶ Start visualizer on play
 audio.addEventListener("play", () => {
