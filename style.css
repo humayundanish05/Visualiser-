@@ -1,5 +1,4 @@
-/* style.css - Clean & Responsive Visualizer Style */
-
+/* Reset and base styles */
 * {
   margin: 0;
   padding: 0;
@@ -9,43 +8,55 @@
 html, body {
   width: 100%;
   height: 100%;
-  background: radial-gradient(#121212, #000);
+  background-color: #000;
   color: #fff;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow: hidden;
 }
 
-.container {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  z-index: 10;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 1rem 2rem;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(5px);
+/* Visualizer container */
+#visualizerContainer {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
 }
 
-h1 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  color: #00ffd5;
-  text-shadow: 0 0 10px #00ffd5;
-}
-
-audio {
-  width: 250px;
-  margin-top: 10px;
-  filter: drop-shadow(0 0 4px #00ffd5);
-}
-
-/* Canvas full screen behind controls */
+/* Canvas for visualizer */
 #visualizerCanvas {
   position: absolute;
   top: 0;
   left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
   z-index: 0;
+}
+
+/* Controls styling */
+.controls {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 10px 20px;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 10px #0f0;
+}
+
+/* Audio player */
+.controls audio {
+  width: 200px;
+}
+
+/* Volume slider */
+#volumeSlider {
+  width: 150px;
+  accent-color: #0f0;
+  cursor: pointer;
 }
