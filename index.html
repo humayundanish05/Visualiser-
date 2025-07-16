@@ -2,17 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Beat Visualizer</title>
-  <style>
-    body { margin:0; overflow:hidden; background:black; }
-    canvas { position:fixed; top:0; left:0; display:block; }
-    #volumeSlider { position:fixed; top:10px; left:10px; z-index:10; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Music Visualizer</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <audio id="audio" src="music5.mp3" controls autoplay></audio>
-  <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
-  <canvas id="visualizerCanvas"></canvas>
+  <div id="visualizerContainer">
+    <canvas id="visualizerCanvas"></canvas>
+
+    <div class="controls">
+      <audio id="audio" src="music5.mp3" controls></audio>
+      <label for="volumeSlider">Volume</label>
+      <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5" />
+    </div>
+  </div>
+
   <script src="main.js"></script>
 </body>
 </html>
